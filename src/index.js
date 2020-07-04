@@ -65,17 +65,4 @@ async function download(src, config) {
   }
 }
 
-// first 1Mb
-// download('http://abc.xyz', { start: 0, end: 1024 * 1024 - 1 }, {
-//   retry: 5,
-//   onError: (err, i) => {
-//     console.log(`Error ${e} at try ${i}`)
-//   },
-//   generateChecksum: (data) => {
-//     return md5Fn(new Uint8Array(data))
-//   }
-// })
-
-// download('http://abc.xyz', { length: 1024 * 1024 }, { retry: 5 })
-
 module.exports = download
