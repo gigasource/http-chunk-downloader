@@ -7,7 +7,7 @@ const md5 = require('md5');
  * @param {String} src.url: CDN url
  * @param {String} src.checksumUrl: checkSum Url
  * @param {Object} config
- * @param {Boolean} [config.skipCheck=false]: Skip checksum checking step
+ * @param {Boolean} [config.skipCheck=true]: Skip checksum checking step
  * @param {Number} [config.range.start=0]: start offset
  * @param {Number} [config.range.end]: end offset
  * @param {Number} [config.range.length]: Number of unit will be received, only used if range.end is missing
@@ -28,9 +28,8 @@ async function download(src, config) {
     checksumUrl = src
   }
 
+  config = config || { skipCheck: true, range: undefined, retry: 1, onError: undefined, generateChecksum: md5 }
   let { skipCheck, range, retry, onError, generateChecksum } = config
-  retry = retry || 1
-  generateChecksum = generateChecksum || md5
   let cfg, checksumCfg;
   if (range) {
     let { start, end, length } = range;
