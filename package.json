@@ -18,6 +18,7 @@
   "homepage": "https://github.com/gigasource/http-chunk-downloader#readme",
   "dependencies": {
     "axios": "^0.19.2",
-    "md5": "^2.2.1"
+    "md5": "^2.2.1",
+    "tmp-promise": "^3.0.2"
   }
 }
