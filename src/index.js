@@ -66,9 +66,10 @@ async function downloadChunk(src, config) {
 
   let data
   let ourCheckSum
+  let filePath
   for(let i=0;i<retry;++i) {
     try {
-      const filePath = await _downloadToFile(url, cfg)
+      filePath = await _downloadToFile(url, cfg)
       if (skipCheck)
         return filePath
       const readStream = fs.createReadStream(filePath)
@@ -83,6 +84,11 @@ async function downloadChunk(src, config) {
         }, i)
       }
     } catch (e) {
+      try {
+        fs.unlinkSync(filePath)
+      } catch (e) {
+        
+      }
       onError && onError(e, i)
     }
   }
