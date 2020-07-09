@@ -20,7 +20,7 @@ async function download(src, config) {
   let url
   let checksumUrl
 
-  if (typeof src !== 'function') {
+  if (typeof src !== 'string') {
     url = src.url
     checksumUrl = src.checksumUrl
   } else {
@@ -28,8 +28,10 @@ async function download(src, config) {
     checksumUrl = src
   }
 
-  config = config || { skipCheck: true, range: undefined, retry: 1, onError: undefined, generateChecksum: md5 }
   let { skipCheck, range, retry, onError, generateChecksum } = config
+  generateChecksum = generateChecksum || md5
+  retry = retry || 1
+
   let cfg, checksumCfg;
   if (range) {
     let { start, end, length } = range;
@@ -50,7 +52,8 @@ async function download(src, config) {
   if (!skipCheck) {
     for(let i=0;i<retry;++i) {
       try {
-        checkSum = (await axios.get(checksumUrl, checksumCfg)).data
+        checkSum = (await axios.get(checksumUrl, checksumCfg)).data.toString()
+        break
       } catch (e) {
         onError && onError(e, i)
       }
