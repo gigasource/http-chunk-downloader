@@ -122,6 +122,7 @@ async function download(src, config) {
   const outputFile = tmp.tmpNameSync()
   for(let filePath of filePaths) {
     await _appendFile(filePath, outputFile)
+    fs.unlinkSync(filePath)
   }
 
   // const stat = fs.statSync(outputFile)
