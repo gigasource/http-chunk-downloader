@@ -16,7 +16,6 @@ const tmp = require('tmp-promise')
  * @param {Number} [config.range.length]: Number of unit will be received, only used if range.end is missing
  * @param {Number} [config.retry=1]: Number the number of time try to re-download if failed
  * @param {Function} [config.onError]: Error handle function to handle error e at download number i
- * @param {Function} [config.generateChecksum=md5]: Custom generate checksum on received data. If not provided, default 'md5' will be used
  * @returns {Promise<null|*>}
  */
 async function downloadChunk(src, config) {
@@ -31,8 +30,7 @@ async function downloadChunk(src, config) {
     checksumUrl = src
   }
 
-  let { skipCheck, range, retry, onError, generateChecksum } = config
-  generateChecksum = generateChecksum || md5
+  let { skipCheck, range, retry, onError } = config
   retry = retry || 1
 
   let cfg, checksumCfg;
@@ -93,7 +91,6 @@ async function downloadChunk(src, config) {
  * @param {Boolean} [config.skipCheck]: Skip checksum checking step
  * @param {Number} [config.retry=1]: Number the number of time try to re-download if failed
  * @param {Function} [config.onError]: Error handle function to handle error e at download number i
- * @param {Function} [config.generateChecksum=md5]: Custom generate checksum on received data. If not provided, default 'md5' will be used
  * @returns {Promise<void>}
  */
 async function download(src, config) {
