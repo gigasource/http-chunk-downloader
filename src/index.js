@@ -117,13 +117,6 @@ async function download(src, config) {
     fs.unlinkSync(filePath)
   }
 
-  // const stat = fs.statSync(outputFile)
-  // console.log(stat)
-  // const outputHash = await md5(await _stream2Buffer(fs.createReadStream(outputFile)))
-  // const serverHash = (await axios.get(src, { headers: { 'check_sum': 1 } })).data
-  // console.log(outputHash)
-  // console.log(serverHash)
-
   return outputFile
 }
 
@@ -144,8 +137,9 @@ async function _downloadToFile(url, config) {
   const writer = fs.createWriteStream(filePath)
   const dataStream = (await axios.get(url, config)).data
   const state = StreamMD5.init()
-  dataStream.pipe(though2((chunk, enc, callback) => {
+  dataStream.pipe(though2(function (chunk, enc, callback) {
     StreamMD5.update(state, chunk)
+    this.push(chunk)
     callback()
   })).pipe(writer)
 
