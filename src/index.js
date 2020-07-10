@@ -10,6 +10,7 @@ const tmp = require('tmp-promise')
  * @param {String} src.url: CDN url
  * @param {String} src.checksumUrl: checkSum Url
  * @param {Object} config
+ * @param {String} outputPath
  * @param {Boolean} [config.skipCheck]: Skip checksum checking step
  * @param {Number} [config.range.start=0]: start offset
  * @param {Number} [config.range.end]: end offset
@@ -111,7 +112,7 @@ async function download(src, config) {
   }
 
   console.log('Joining chunks...')
-  const outputFile = tmp.tmpNameSync()
+  const outputFile = config.outputPath || tmp.tmpNameSync()
   for(let filePath of filePaths) {
     await _appendFile(filePath, outputFile)
     fs.unlinkSync(filePath)
