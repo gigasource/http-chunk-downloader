@@ -1,6 +1,6 @@
 {
   "name": "http-chunk-downloader",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Corresponding client lib to download chunk for http-chunk-serve cli app or github.com/gigasource/serve-static express middleware",
   "main": "./src/index.js",
   "scripts": {
@@ -18,7 +18,8 @@
   "homepage": "https://github.com/gigasource/http-chunk-downloader#readme",
   "dependencies": {
     "axios": "^0.19.2",
-    "md5": "^2.2.1",
+    "stream-md5": "0.0.2",
+    "through2": "^4.0.2",
     "tmp-promise": "^3.0.2"
   }
 }

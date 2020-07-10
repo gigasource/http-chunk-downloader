@@ -1,6 +1,6 @@
 (async () => {
   const { download } = require('./index')
-  const data = await download('http://localhost/Steve1.mp4', { retry: 10, onError: (e, i) => {
+  const data = await download('http://localhost/bentley-1.jpg', { retry: 10, onError: (e, i) => {
       console.log(e, i)
     } })
   console.log(data)

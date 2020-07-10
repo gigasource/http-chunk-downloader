@@ -1,6 +1,7 @@
-const axios = require('axios')
-const md5 = require('md5')
 const fs = require('fs')
+const axios = require('axios')
+const StreamMD5 = require('stream-md5/md5')
+const though2 = require('through2')
 const tmp = require('tmp-promise')
 
 /**
@@ -64,31 +65,19 @@ async function downloadChunk(src, config) {
       throw "Can not obtain checksum information"
   }
 
-  let data
-  let ourCheckSum
   let filePath
-  for(let i=0;i<retry;++i) {
+  for(let i=0; i<retry; ++i) {
     try {
-      filePath = await _downloadToFile(url, cfg)
-      if (skipCheck)
-        return filePath
-      const readStream = fs.createReadStream(filePath)
-      const data2 = await _stream2Buffer(readStream)
-      ourCheckSum = generateChecksum(data2)
-      readStream.close()
-      if (checkSum === ourCheckSum) {
+      const result = await _downloadToFile(url, cfg)
+      filePath = result.filePath
+      if (skipCheck || checkSum === result.checksum) {
         return filePath
       } else {
-        onError && onError({
-          message: `Checksum mismatch. Expect: ${checkSum}, Received: ${ourCheckSum}`
-        }, i)
+        try { fs.unlinkSync(filePath) } catch (e) {} // remove invalid file
+        onError && onError({ message: `Checksum mismatch. Expect: ${checkSum}, Received: ${result.checksum}` }, i)
       }
     } catch (e) {
-      try {
-        fs.unlinkSync(filePath)
-      } catch (e) {
-        
-      }
+      try { fs.unlinkSync(filePath) } catch (e) {} // remove invalid file if exist
       onError && onError(e, i)
     }
   }
@@ -150,25 +139,21 @@ function _appendFile(fsrc, fdest) {
     f1.pipe(f2)
   })
 }
-function _stream2Buffer(stream) {
-  return new Promise((resolve) => {
-    const bufs = [];
-    stream.on('data', d => bufs.push(d))
-    stream.on('end', () => {
-      resolve(Buffer.concat(bufs))
-    })
-  })
-}
+
 async function _downloadToFile(url, config) {
+  config.responseType = 'stream'
+
   const filePath = tmp.tmpNameSync()
   const writer = fs.createWriteStream(filePath)
-  config.responseType = 'stream'
-  const response = await axios.get(url, config)
-  response.data.pipe(writer)
+  const dataStream = (await axios.get(url, config)).data
+  const state = StreamMD5.init()
+  dataStream.pipe(though2((chunk, enc, callback) => {
+    StreamMD5.update(state, chunk)
+    callback()
+  })).pipe(writer)
+
   return new Promise((resolve, reject) => {
-    writer.on('finish', () => {
-      resolve(filePath)
-    })
+    writer.on('finish', () => resolve({ filePath, checksum: StreamMD5.finalize(state) }))
     writer.on('error', reject)
   })
 }
